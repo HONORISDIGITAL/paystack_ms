@@ -1,0 +1,60 @@
+services:
+  # Worker service for Laravel queues (Postgres-backed)
+  - name: paystack-worker
+    type: worker
+    env: docker
+    autoDeploy: true
+
+    # If you use monorepo or a subdir, set 'rootDir' accordingly
+    # rootDir: .
+
+    # For Docker runtime, don't use build/start; use dockerCommand.
+    dockerCommand: |
+      php artisan queue:work database --sleep=3 --tries=3 --timeout=120 --verbose
+
+    envVars:
+      # Required
+      - key: APP_ENV
+        value: production
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: QUEUE_CONNECTION
+        value: database
+
+      # App key – set the same value used by your Paystack web service
+      - key: APP_KEY
+        sync: false
+
+      # Database (Render Postgres) – set these from your Render DB
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_DATABASE
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+
+      # Other env your app needs (set to sync:false and fill in Render UI)
+      - key: APP_URL
+        sync: false
+      - key: PAYSTACK_BASE_URL
+        sync: false
+      - key: PAYSTACK_PUBLIC_KEY
+        sync: false
+      - key: PAYSTACK_SECRET_KEY
+        sync: false
+      - key: PAYSTACK_SECRET_HASH
+        sync: false
+      - key: NEXUS_API_URL
+        sync: false
+      - key: NEXUS_USERNAME
+        sync: false
+      - key: NEXUS_PASSWORD
+        sync: false
+
+

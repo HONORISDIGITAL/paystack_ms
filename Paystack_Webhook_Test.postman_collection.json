@@ -1,0 +1,233 @@
+{
+	"info": {
+		"_postman_id": "paystack-webhook-test",
+		"name": "Paystack Webhook Test",
+		"description": "Postman collection for testing Paystack payment webhooks. This collection includes the exact payload structure from actual Paystack webhook events.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Payment Webhook - charge.success",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Calculate x-paystack-signature header",
+							"// Note: Set PAYSTACK_SECRET_KEY in your Postman environment variables",
+							"const secretKey = pm.environment.get('PAYSTACK_SECRET_KEY') || pm.collectionVariables.get('paystack_secret_key') || 'YOUR_SECRET_KEY';",
+							"",
+							"// Get the raw request body",
+							"const body = pm.request.body.raw;",
+							"",
+							"// Calculate HMAC SHA512 signature (same as Paystack does)",
+							"const signature = CryptoJS.HmacSHA512(body, secretKey).toString();",
+							"",
+							"// Remove existing signature header if present",
+							"pm.request.headers.remove('x-paystack-signature');",
+							"",
+							"// Set the calculated signature header",
+							"pm.request.headers.add({",
+							"    key: 'x-paystack-signature',",
+							"    value: signature",
+							"});",
+							"",
+							"// Log for debugging (optional)",
+							"console.log('Calculated signature:', signature);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "User-Agent",
+						"value": "Paystack/2.0"
+					},
+					{
+						"key": "x-paystack-signature",
+						"value": "",
+						"description": "Auto-calculated in pre-request script. Make sure to set PAYSTACK_SECRET_KEY in environment variables."
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"event\": \"charge.success\",\n  \"data\": {\n    \"id\": 5549185396,\n    \"domain\": \"test\",\n    \"status\": \"success\",\n    \"reference\": \"920556089538-ecampus-1763544356703\",\n    \"amount\": 33390000,\n    \"message\": null,\n    \"gateway_response\": \"Successful\",\n    \"paid_at\": \"2025-11-19T09:26:05.000Z\",\n    \"created_at\": \"2025-11-19T09:26:00.000Z\",\n    \"channel\": \"card\",\n    \"currency\": \"NGN\",\n    \"ip_address\": \"169.1.202.101\",\n    \"metadata\": {\n      \"referrer\": \"https://ecampus.nileonline.com.ng/dev-testing/ecampus-00900909\"\n    },\n    \"fees_breakdown\": null,\n    \"log\": null,\n    \"fees\": 150000,\n    \"fees_split\": null,\n    \"authorization\": {\n      \"authorization_code\": \"AUTH_klrspn6ty4\",\n      \"bin\": \"408408\",\n      \"last4\": \"4081\",\n      \"exp_month\": \"12\",\n      \"exp_year\": \"2030\",\n      \"channel\": \"card\",\n      \"card_type\": \"visa\",\n      \"bank\": \"TEST BANK\",\n      \"country_code\": \"NG\",\n      \"brand\": \"visa\",\n      \"reusable\": true,\n      \"signature\": \"SIG_w1hSznNLF8LznsiZTs33\",\n      \"account_name\": null,\n      \"receiver_bank_account_number\": null,\n      \"receiver_bank\": null\n    },\n    \"customer\": {\n      \"id\": 302267693,\n      \"first_name\": null,\n      \"last_name\": null,\n      \"email\": \"lcodevilla@honoris.net\",\n      \"customer_code\": \"CUS_ntw7uqkgx8o3j3l\",\n      \"phone\": null,\n      \"metadata\": null,\n      \"risk_action\": \"default\",\n      \"international_format_phone\": null\n    },\n    \"plan\": {},\n    \"subaccount\": {},\n    \"split\": {},\n    \"order_id\": null,\n    \"paidAt\": \"2025-11-19T09:26:05.000Z\",\n    \"requested_amount\": 33240000,\n    \"pos_transaction_data\": null,\n    \"source\": {\n      \"type\": \"web\",\n      \"source\": \"checkout\",\n      \"entry_point\": \"request_inline\",\n      \"identifier\": null\n    }\n  }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/webhooks/paystack/payment",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"webhooks",
+						"paystack",
+						"payment"
+					]
+				},
+				"description": "Test webhook for successful payment (charge.success event). This matches the exact payload structure from actual Paystack webhook logs."
+			},
+			"response": []
+		},
+		{
+			"name": "Payment Webhook - charge.failed",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Calculate x-paystack-signature header",
+							"const secretKey = pm.environment.get('PAYSTACK_SECRET_KEY') || 'YOUR_SECRET_KEY';",
+							"const body = pm.request.body.raw;",
+							"const signature = CryptoJS.HmacSHA512(body, secretKey).toString();",
+							"pm.request.headers.add({",
+							"    key: 'x-paystack-signature',",
+							"    value: signature",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "User-Agent",
+						"value": "Paystack/2.0"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"event\": \"charge.failed\",\n  \"data\": {\n    \"id\": 5549185397,\n    \"domain\": \"test\",\n    \"status\": \"failed\",\n    \"reference\": \"test-failed-ref-12345\",\n    \"amount\": 1000000,\n    \"message\": \"Declined\",\n    \"gateway_response\": \"Declined\",\n    \"paid_at\": null,\n    \"created_at\": \"2025-11-19T10:00:00.000Z\",\n    \"channel\": \"card\",\n    \"currency\": \"NGN\",\n    \"ip_address\": \"169.1.202.101\",\n    \"metadata\": {},\n    \"fees_breakdown\": null,\n    \"log\": null,\n    \"fees\": 0,\n    \"fees_split\": null,\n    \"authorization\": {\n      \"authorization_code\": null,\n      \"bin\": null,\n      \"last4\": null,\n      \"exp_month\": null,\n      \"exp_year\": null,\n      \"channel\": \"card\",\n      \"card_type\": null,\n      \"bank\": null,\n      \"country_code\": null,\n      \"brand\": null,\n      \"reusable\": false,\n      \"signature\": null,\n      \"account_name\": null,\n      \"receiver_bank_account_number\": null,\n      \"receiver_bank\": null\n    },\n    \"customer\": {\n      \"id\": 302267694,\n      \"first_name\": \"Test\",\n      \"last_name\": \"User\",\n      \"email\": \"test@example.com\",\n      \"customer_code\": \"CUS_test123\",\n      \"phone\": \"+2348123456789\",\n      \"metadata\": null,\n      \"risk_action\": \"default\",\n      \"international_format_phone\": null\n    },\n    \"plan\": {},\n    \"subaccount\": {},\n    \"split\": {},\n    \"order_id\": null,\n    \"paidAt\": null,\n    \"requested_amount\": 1000000,\n    \"pos_transaction_data\": null,\n    \"source\": {\n      \"type\": \"web\",\n      \"source\": \"checkout\",\n      \"entry_point\": \"request_inline\",\n      \"identifier\": null\n    }\n  }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/webhooks/paystack/payment",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"webhooks",
+						"paystack",
+						"payment"
+					]
+				},
+				"description": "Test webhook for failed payment (charge.failed event)."
+			},
+			"response": []
+		},
+		{
+			"name": "Payment Webhook - charge.pending",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Calculate x-paystack-signature header",
+							"const secretKey = pm.environment.get('PAYSTACK_SECRET_KEY') || 'YOUR_SECRET_KEY';",
+							"const body = pm.request.body.raw;",
+							"const signature = CryptoJS.HmacSHA512(body, secretKey).toString();",
+							"pm.request.headers.add({",
+							"    key: 'x-paystack-signature',",
+							"    value: signature",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "User-Agent",
+						"value": "Paystack/2.0"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"event\": \"charge.pending\",\n  \"data\": {\n    \"id\": 5549185398,\n    \"domain\": \"test\",\n    \"status\": \"pending\",\n    \"reference\": \"test-pending-ref-12345\",\n    \"amount\": 500000,\n    \"message\": \"Pending\",\n    \"gateway_response\": \"Pending\",\n    \"paid_at\": null,\n    \"created_at\": \"2025-11-19T10:00:00.000Z\",\n    \"channel\": \"bank\",\n    \"currency\": \"NGN\",\n    \"ip_address\": \"169.1.202.101\",\n    \"metadata\": {},\n    \"fees_breakdown\": null,\n    \"log\": null,\n    \"fees\": 0,\n    \"fees_split\": null,\n    \"authorization\": null,\n    \"customer\": {\n      \"id\": 302267695,\n      \"first_name\": \"Pending\",\n      \"last_name\": \"User\",\n      \"email\": \"pending@example.com\",\n      \"customer_code\": \"CUS_pending123\",\n      \"phone\": \"+2348123456789\",\n      \"metadata\": null,\n      \"risk_action\": \"default\",\n      \"international_format_phone\": null\n    },\n    \"plan\": {},\n    \"subaccount\": {},\n    \"split\": {},\n    \"order_id\": null,\n    \"paidAt\": null,\n    \"requested_amount\": 500000,\n    \"pos_transaction_data\": null,\n    \"source\": {\n      \"type\": \"web\",\n      \"source\": \"checkout\",\n      \"entry_point\": \"request_inline\",\n      \"identifier\": null\n    }\n  }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/webhooks/paystack/payment",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"webhooks",
+						"paystack",
+						"payment"
+					]
+				},
+				"description": "Test webhook for pending payment (charge.pending event)."
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://paystack.test:8081",
+			"type": "string"
+		},
+		{
+			"key": "paystack_secret_key",
+			"value": "",
+			"type": "string",
+			"description": "Your Paystack secret key for signature calculation"
+		}
+	]
+}
+
