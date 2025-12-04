@@ -66,12 +66,12 @@ Route::prefix('webhooks/paystack')->group(function () {
     // Payment webhook
     Route::post('/payment', [PaystackWebhookController::class, 'handlePaymentWebhook']);
     
-    // Transfer webhook
-    Route::post('/transfer', [PaystackWebhookController::class, 'handleTransferWebhook']);
+    // Transfer webhook - Not currently used, commented out for security
+    // Route::post('/transfer', [PaystackWebhookController::class, 'handleTransferWebhook']);
     
-    // Generic webhook (catch-all)
-    Route::post('/generic', [PaystackWebhookController::class, 'handleGenericWebhook']);
+    // Generic webhook (catch-all) - Not currently used, commented out for security
+    // Route::post('/generic', [PaystackWebhookController::class, 'handleGenericWebhook']);
     
-    // Test webhook endpoint
-    Route::post('/test', [PaystackWebhookController::class, 'handleGenericWebhook']);
+    // Test webhook endpoint - Not currently used, commented out for security
+    // Route::post('/test', [PaystackWebhookController::class, 'handleGenericWebhook']);
 });
